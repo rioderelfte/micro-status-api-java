@@ -9,6 +9,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +22,7 @@ import java.util.UUID;
 public class TweetController {
     private final UserRepository userRepository;
     private final TweetRepository tweetRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @GetMapping("/tweets")
     public Iterable<Tweet> findAllTweets() {
@@ -42,7 +44,9 @@ public class TweetController {
     @PostMapping("/tweets")
     @RolesAllowed(User.ROLE_USER)
     public Tweet postTweet(@RequestBody NewTweet tweet, @AuthenticationPrincipal User user) {
-        return tweetRepository.save(tweet.buildTweetModelForUser(user));
+        var savedTweet = tweetRepository.save(tweet.buildTweetModelForUser(user));
+        simpMessagingTemplate.convertAndSend("/queue/tweets", savedTweet);
+        return savedTweet;
     }
 
     @GetMapping("/currentUser/tweets")

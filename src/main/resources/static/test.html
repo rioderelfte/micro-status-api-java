@@ -1,0 +1,17 @@
+<title>Test</title>
+
+<script src="/stomp.min.js"></script>
+<script>
+    var client = Stomp.client('ws://localhost:8080/ws')
+    client.connect(
+        {},
+        (frame) => {
+            client.subscribe("/queue/tweets", (tweet) => {
+                console.log('New tweet: ', tweet)
+            });
+        },
+        (error) => {
+            console.error('Error connecting to websocket server: ', error)
+        })
+    console.log(client)
+</script>
