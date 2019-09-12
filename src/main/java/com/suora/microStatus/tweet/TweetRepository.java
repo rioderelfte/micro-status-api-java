@@ -9,6 +9,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface TweetRepository extends CrudRepository<Tweet, UUID> {
+interface TweetRepository extends CrudRepository<Tweet, UUID> {
     List<Tweet> findAllByUser(User user, Pageable pageable);
 }
