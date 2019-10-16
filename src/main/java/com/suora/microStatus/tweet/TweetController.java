@@ -25,7 +25,7 @@ public class TweetController {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @GetMapping("/tweets")
-    public Iterable<Tweet> findAllTweets() {
+    public Iterable<Tweet> allTweets() {
         return tweetRepository.findAll();
     }
 
@@ -35,15 +35,23 @@ public class TweetController {
     }
 
     @GetMapping("/users/{userId}/tweets")
-    public Iterable<Tweet> findTweetsByUser(@PathVariable UUID userId, Pageable pageable) {
+    public Iterable<Tweet> tweetsForUser(
+        @PathVariable UUID userId,
+        Pageable pageable
+    ) {
         return tweetRepository.findAllByUser(
-            userRepository.findById(userId).orElseThrow(NotFoundException::new),
-            pageable);
+            userRepository.findById(userId)
+                          .orElseThrow(NotFoundException::new),
+            pageable
+        );
     }
 
     @PostMapping("/tweets")
     @RolesAllowed(User.ROLE_USER)
-    public Tweet postTweet(@RequestBody NewTweet tweet, @AuthenticationPrincipal User user) {
+    public Tweet addTweet(
+        @RequestBody NewTweet tweet,
+        @AuthenticationPrincipal User user
+    ) {
         var savedTweet = tweetRepository.save(tweet.buildTweetModelForUser(user));
         simpMessagingTemplate.convertAndSend("/queue/tweets", savedTweet);
         return savedTweet;
@@ -51,7 +59,10 @@ public class TweetController {
 
     @GetMapping("/currentUser/tweets")
     @RolesAllowed(User.ROLE_USER)
-    public Iterable<Tweet> myTweets(@AuthenticationPrincipal User user, Pageable pageable) {
+    public Iterable<Tweet> tweetsForCurrentUser(
+        @AuthenticationPrincipal User user,
+        Pageable pageable
+    ) {
         return tweetRepository.findAllByUser(user, pageable);
     }
 
@@ -62,7 +73,9 @@ public class TweetController {
         private String text;
 
         Tweet buildTweetModelForUser(User user) {
-            return new Tweet(UUID.randomUUID(), user, Instant.now(), text);
+            return new Tweet(
+                UUID.randomUUID(), user, Instant.now(), text
+            );
         }
     }
 }
