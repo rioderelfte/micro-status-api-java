@@ -7,7 +7,6 @@ import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import java.time.Instant;
 import java.util.UUID;
@@ -31,7 +30,7 @@ public class Tweet {
     @NonNull
     private final Instant createdAt;
 
-    @Lob
+    @javax.persistence.Lob
     @NonNull
     private final String text;
 
